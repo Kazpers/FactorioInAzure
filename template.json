@@ -1,0 +1,116 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageAccountName": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "containerName": "factorio"
+  },
+  "resources": [
+    {
+      "name": "[variables('containerName')]",
+      "type": "Microsoft.ContainerInstance/containerGroups",
+      "apiVersion": "2017-08-01-preview",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "containers": [{
+          "name": "[variables('containerName')]",
+          "properties": {
+            "image": "goofball222/factorio",
+            "resources": {
+              "requests": {
+                "cpu": 1,
+                "memoryInGb": 1.0
+              }
+            },
+            "environmentVariables": [
+              {
+                "name": "EULA",
+                "value": "TRUE"
+              }
+            ],
+            "ports": [
+              {
+                "protocol": "TCP",
+				"port": 27015
+              },
+			  {
+                "protocol": "UDP",
+				"port": 34197
+              }
+            ],
+            "volumeMounts": [
+			{
+              "name": "localtime",
+              "mountPath": "/etc/localtime:/etc/localtime:ro"
+            },{
+              "name": "config",
+              "mountPath": "./config:/opt/factorio/config"
+            },{
+              "name": "mods",
+              "mountPath": "./mods:/opt/factorio/mods"
+            },{
+              "name": "saves",
+              "mountPath": "./saves:/opt/factorio/saves"
+            }
+			]
+          }  
+        }],
+        "osType": "Linux",
+        "ipAddress": {
+          "type": "Public",
+          "ports": [
+            {
+              "protocol": "TCP",
+              "port": 27015
+            },
+			  {
+                "protocol": "UDP",
+				"port": 34197
+              }
+          ]
+        },
+        "volumes": [
+		{
+          "name": "localtime",
+          "azureFile": {
+              "shareName": "factorio-localtime",
+              "storageAccountName": "[parameters('storageAccountName')]",
+              "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')),'2016-01-01').keys[0].value]"
+          }
+        },{
+          "name": "config",
+          "azureFile": {
+              "shareName": "factorio-config",
+              "storageAccountName": "[parameters('storageAccountName')]",
+              "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')),'2016-01-01').keys[0].value]"
+          }
+        },{
+          "name": "mods",
+          "azureFile": {
+              "shareName": "factorio-mods",
+              "storageAccountName": "[parameters('storageAccountName')]",
+              "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')),'2016-01-01').keys[0].value]"
+          }
+        },{
+          "name": "saves",
+          "azureFile": {
+              "shareName": "factorio-saves",
+              "storageAccountName": "[parameters('storageAccountName')]",
+              "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')),'2016-01-01').keys[0].value]"
+          }
+        }
+		]
+      }
+    }
+  ],
+  "outputs": {
+    "serverAddress": {
+      "type": "string",
+      "value": "[reference(concat('Microsoft.ContainerInstance/containerGroups/', variables('containerName')), '2017-08-01-preview').ipAddress.ip]"
+    }
+  }
+}
