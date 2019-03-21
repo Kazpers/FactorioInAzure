@@ -1,0 +1,174 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "WestEurope",
+      "metadata": {
+        "description": "Location of the resources (e.g. westus, eastus, westeurope)."
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2018-09-01-preview",
+      "name": "FactorioNet",
+      "type": "Microsoft.ServiceFabricMesh/networks",
+      "location": "[parameters('location')]",
+      "dependsOn": [],
+      "properties": {
+        "kind": "Local",
+        "description": "Azure Service Fabric Mesh Factorio Application network.",
+        "networkAddressPrefix": "10.0.0.0/24"
+      }
+    },
+    {
+      "apiVersion": "2018-09-01-preview",
+      "name": "FactorioServerApp",
+      "type": "Microsoft.ServiceFabricMesh/applications",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "Microsoft.ServiceFabricMesh/networks/FactorioNet"
+      ],
+      "properties": {
+        "description": "Service Fabric Mesh Factorio Application!",
+        "services": [
+          {
+            "type": "Microsoft.ServiceFabricMesh/services",
+            "location": "[parameters('location')]",
+            "name": "FactorioServerSvc",
+
+            "properties": {
+              "description": "Service Fabric Mesh Factorio Service.",
+              "osType": "linux",
+              "codePackages": [
+                {
+                  "name": "code",
+                  "image": "goofball222/factorio",
+                  "volumes": [
+                    {
+                      "name": "/etc/localtime",
+                      "creationParameters": {
+                        "kind": "ServiceFabricVolumeDisk",
+                        "sizeDisk": "Small"
+                      },
+                      "destinationPath": "/etc/localtime:ro"
+                    },
+					{
+                      "name": "./config",
+                      "creationParameters": {
+                        "kind": "ServiceFabricVolumeDisk",
+                        "sizeDisk": "Small"
+                      },
+                      "destinationPath": "/opt/factorio/config"
+                    },
+					{
+                      "name": "./mods",
+                      "creationParameters": {
+                        "kind": "ServiceFabricVolumeDisk",
+                        "sizeDisk": "Small"
+                      },
+                      "destinationPath": "/opt/factorio/mods"
+                    },
+					{
+                      "name": "./saves",
+                      "creationParameters": {
+                        "kind": "ServiceFabricVolumeDisk",
+                        "sizeDisk": "Small"
+                      },
+                      "destinationPath": "/opt/factorio/saves"
+                    }
+                  ],
+                  "endpoints": [
+                    {
+                      "name": "factorioListener",
+					  "protocol": "UDP",
+                      "port": "34197"
+                    },
+                    {
+                      "name": "factorioAPIListener",
+                      "port": "27015"
+                    }
+                  ],
+                  "environmentVariables": [
+                    {
+                      "name": "FACTORIO_PORT",
+                      "value": "34197"
+                    }
+                  ],
+                  "resources": {
+                    "requests": {
+                      "cpu": "2",
+                      "memoryInGB": "2"
+                    }
+                  }
+                }
+              ],
+              "replicaCount": "1",
+              "networkRefs": [
+                {
+                  "name": "[resourceId('Microsoft.ServiceFabricMesh/networks', 'FactorioNet')]",
+                  "endpointRefs": [
+                    {
+                      "name": "factorioListener"
+                    },
+                    {
+                      "name": "factorioAPIListener"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2018-09-01-preview",
+      "name": "FactorioGateway",
+      "type": "Microsoft.ServiceFabricMesh/gateways",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "Microsoft.ServiceFabricMesh/networks/FactorioNet"
+      ],
+      "properties": {
+        "description": "Service Fabric Mesh Gateway for Factorio.",
+        "sourceNetwork": {
+          "name": "Open"
+        },
+        "destinationNetwork": {
+          "name": "[resourceId('Microsoft.ServiceFabricMesh/networks', 'FactorioNet')]"
+        },
+        "tcp": [
+          {
+            "name": "Public",
+            "port": 27015,
+            "destination": {
+              "applicationName": "FactorioServerApp",
+              "serviceName": "FactorioServerSvc",
+              "endpointName": "factorioAPIListener"
+            }
+          }
+        ],
+		"udp": [
+          {
+            "name": "Public",
+            "port": 34197,
+            "destination": {
+              "applicationName": "FactorioServerApp",
+              "serviceName": "FactorioServerSvc",
+              "endpointName": "factorioListener"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "publicIPAddress": {
+      "value": "[reference('FactorioGateway').ipAddress]",
+      "type": "string"
+    }
+  }
+}
