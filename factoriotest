@@ -93,6 +93,10 @@
                     {
                       "name": "FACTORIO_PORT",
                       "value": "34197"
+                    },
+		    {
+                      "name": "FACTORIO_RCON_PASSWORD",
+                      "value": "f4ct0r10"
                     }
                   ],
                   "resources": {
