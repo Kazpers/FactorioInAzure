@@ -52,7 +52,7 @@
                         "kind": "ServiceFabricVolumeDisk",
                         "sizeDisk": "Small"
                       },
-                      "destinationPath": "/etc/localtime:ro"
+                      "destinationPath": "/etc/localtime"
                     },
 					{
                       "name": "config",
