@@ -45,10 +45,10 @@
               "codePackages": [
                 {
                   "name": "code",
-                  "image": "goofball222/factorio",
+                  "image": "goofball222/factorio:experimental",
                   "volumes": [
                     {
-                      "name": "/etc/localtime",
+                      "name": "etc/localtime",
                       "creationParameters": {
                         "kind": "ServiceFabricVolumeDisk",
                         "sizeDisk": "Small"
@@ -56,7 +56,7 @@
                       "destinationPath": "/etc/localtime:ro"
                     },
 					{
-                      "name": "./config",
+                      "name": "config",
                       "creationParameters": {
                         "kind": "ServiceFabricVolumeDisk",
                         "sizeDisk": "Small"
@@ -64,7 +64,7 @@
                       "destinationPath": "/opt/factorio/config"
                     },
 					{
-                      "name": "./mods",
+                      "name": "mods",
                       "creationParameters": {
                         "kind": "ServiceFabricVolumeDisk",
                         "sizeDisk": "Small"
@@ -72,7 +72,7 @@
                       "destinationPath": "/opt/factorio/mods"
                     },
 					{
-                      "name": "./saves",
+                      "name": "saves",
                       "creationParameters": {
                         "kind": "ServiceFabricVolumeDisk",
                         "sizeDisk": "Small"
