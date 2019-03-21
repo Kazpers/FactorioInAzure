@@ -83,7 +83,6 @@
                   "endpoints": [
                     {
                       "name": "factorioListener",
-					  "protocol": "UDP",
                       "port": "34197"
                     },
                     {
@@ -150,7 +149,7 @@
               "endpointName": "factorioAPIListener"
             }
           },
-		  {
+	  {
             "name": "Public",
             "port": 34197,
             "destination": {
