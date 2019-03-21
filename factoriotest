@@ -27,7 +27,6 @@
       "apiVersion": "2018-09-01-preview",
       "name": "FactorioServerApp",
       "type": "Microsoft.ServiceFabricMesh/applications",
-      "location": "[parameters('location')]",
       "dependsOn": [
         "Microsoft.ServiceFabricMesh/networks/FactorioNet"
       ],
