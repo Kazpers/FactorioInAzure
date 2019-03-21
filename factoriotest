@@ -47,7 +47,7 @@
                   "image": "goofball222/factorio:experimental",
                   "volumes": [
                     {
-                      "name": "etc/localtime",
+                      "name": "localtime",
                       "creationParameters": {
                         "kind": "ServiceFabricVolumeDisk",
                         "sizeDisk": "Small"
