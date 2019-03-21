@@ -149,10 +149,8 @@
               "serviceName": "FactorioServerSvc",
               "endpointName": "factorioAPIListener"
             }
-          }
-        ],
-		"udp": [
-          {
+          },
+		  {
             "name": "Public",
             "port": 34197,
             "destination": {
